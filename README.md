@@ -393,6 +393,7 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - HTML parsing is most reliable for all languages including Russian, Chinese, etc.
    - **Debug tip**: Set `"log_level": "debug"` in config.json to see formatting details
    - **Fixed**: Switched to HTML with proper tag parsing (no more literal tags visible)
+   - **Fixed**: Message splitting now preserves line breaks and text structure for Russian and all languages
    - If issues persist, check debug logs for HTML formatting processing details
 
 ### Debug Mode
@@ -411,6 +412,7 @@ The bot uses **HTML formatting** for maximum reliability across all languages. T
 - **Rock-solid parsing**: HTML tags render correctly without escaping issues
 - **Rich formatting**: Uses `<b>bold</b>`, `<i>italic</i>`, `<code>code</code>`, `<u>underline</u>`, etc.
 - **Fixed HTML rendering**: HTML tags now display as formatting, not literal text
+- **Preserved text structure**: Line breaks and paragraphs maintained in all languages
 
 ### Getting Help
 

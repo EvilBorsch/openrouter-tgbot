@@ -200,17 +200,24 @@ Keep responses clear and mobile-friendly. Preserve line breaks and structure.`
 
 // convertTablesToHTML converts tables for HTML formatting (most reliable for international text)
 func (b *Bot) convertTablesToHTML(text string) string {
+	// Check if text actually contains tables - if not, return as-is to preserve structure
+	if !strings.Contains(text, "|") {
+		return text
+	}
+
 	// Don't escape HTML entities - we want HTML tags to be parsed as formatting
 	// The LLM is instructed to generate proper HTML, so we trust its output
 
 	lines := strings.Split(text, "\n")
 	var result []string
+	hasTableContent := false
 
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
 
 		// Simple table detection: starts and ends with |
 		if strings.HasPrefix(trimmed, "|") && strings.HasSuffix(trimmed, "|") && len(trimmed) > 2 {
+			hasTableContent = true
 			// Check if this might be a header (next line has dashes)
 			isHeader := false
 			if i+1 < len(lines) {
@@ -246,6 +253,11 @@ func (b *Bot) convertTablesToHTML(text string) string {
 		}
 	}
 
+	// If no actual table content was found, return original text to preserve structure
+	if !hasTableContent {
+		return text
+	}
+
 	return strings.Join(result, "\n")
 }
 
@@ -276,22 +288,35 @@ FORMATTING RULES:
 - Use <pre>code blocks</pre> for longer code
 - Use <u>underlined text</u> for special emphasis (optional)
 
-STRUCTURE GUIDELINES:
-- Use bullet points (•) for lists
-- Keep paragraphs short and readable
-- Use blank lines to separate sections
-- Preserve line breaks for readability
+STRUCTURE GUIDELINES (CRITICAL):
+- ALWAYS use blank lines between sections and paragraphs
+- ALWAYS add line breaks after headers
+- Use bullet points (•) for lists with proper line breaks
+- Keep paragraphs short and separated by blank lines
+- Add extra line breaks for better readability
+
+EXAMPLE STRUCTURE:
+<b>Section Header</b>
+
+Content paragraph with proper spacing.
+
+• Bullet point 1
+• Bullet point 2
+
+<b>Next Section</b>
+
+More content with proper spacing.
 
 FOR TABLES: Use simple bullet-point format:
 • <b>Column 1</b> | <b>Column 2</b> | <b>Column 3</b>  
 • Data 1 | Data 2 | Data 3
-• Data A | Data B | Data C
 
 IMPORTANT: 
+- Use MANY line breaks - better too many than too few
+- This is especially important for Russian, Chinese, and other non-Latin scripts
+- Each section should be clearly separated with blank lines
 - Only use HTML tags for formatting: <b>, <i>, <code>, <pre>, <u>
 - Do NOT use < or > characters for anything other than HTML tags
-- Avoid special characters that might conflict with HTML parsing
-- Keep responses clear and mobile-friendly
 
 This HTML formatting works perfectly with all languages including Russian, Chinese, Arabic, etc.`
 }

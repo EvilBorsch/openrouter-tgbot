@@ -309,32 +309,86 @@ func (b *Bot) sendMessageWithMode(userID int64, text, parseMode string) error {
 	return nil
 }
 
-// splitMessage splits a long message into smaller chunks
+// splitMessage splits a long message into smaller chunks while preserving structure
 func (b *Bot) splitMessage(text string, maxLength int) []string {
 	if len(text) <= maxLength {
 		return []string{text}
 	}
 
 	var messages []string
-	words := strings.Fields(text)
+
+	// Split by paragraphs first to preserve structure
+	paragraphs := strings.Split(text, "\n\n")
 	current := ""
 
-	for _, word := range words {
-		// If adding this word would exceed the limit
-		if len(current)+len(word)+1 > maxLength {
+	for _, paragraph := range paragraphs {
+		paragraph = strings.TrimSpace(paragraph)
+		if paragraph == "" {
+			continue
+		}
+
+		// If adding this paragraph would exceed the limit
+		if len(current)+len(paragraph)+2 > maxLength {
 			if current != "" {
-				messages = append(messages, current)
-				current = word
+				messages = append(messages, strings.TrimSpace(current))
+				current = paragraph
 			} else {
-				// Word is too long, split it
-				messages = append(messages, word[:maxLength])
-				current = word[maxLength:]
+				// Paragraph is too long, split by lines
+				lines := strings.Split(paragraph, "\n")
+				tempCurrent := ""
+
+				for _, line := range lines {
+					line = strings.TrimSpace(line)
+					if line == "" {
+						continue
+					}
+
+					if len(tempCurrent)+len(line)+1 > maxLength {
+						if tempCurrent != "" {
+							messages = append(messages, strings.TrimSpace(tempCurrent))
+							tempCurrent = line
+						} else {
+							// Line is too long, split by words as last resort
+							words := strings.Fields(line)
+							wordCurrent := ""
+
+							for _, word := range words {
+								if len(wordCurrent)+len(word)+1 > maxLength {
+									if wordCurrent != "" {
+										messages = append(messages, strings.TrimSpace(wordCurrent))
+										wordCurrent = word
+									} else {
+										// Word is too long, force split
+										messages = append(messages, word[:maxLength])
+										wordCurrent = word[maxLength:]
+									}
+								} else {
+									if wordCurrent == "" {
+										wordCurrent = word
+									} else {
+										wordCurrent += " " + word
+									}
+								}
+							}
+							if wordCurrent != "" {
+								tempCurrent = wordCurrent
+							}
+						}
+					} else {
+						if tempCurrent == "" {
+							tempCurrent = line
+						} else {
+							tempCurrent += "\n" + line
+						}
+					}
+				}
+				current = tempCurrent
 			}
 		} else {
 			if current == "" {
-				current = word
+				current = paragraph
 			} else {
-				current += " " + word
+				current += "\n\n" + paragraph
 			}
 		}
 	}
