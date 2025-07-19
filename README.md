@@ -391,11 +391,24 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - The bot uses MarkdownV2 with automatic text processing
    - Special characters are automatically escaped
    - Tables and headers are converted to Telegram-friendly format
+   - **Debug tip**: Set `"log_level": "debug"` in config.json to see formatting details
    - If issues persist, the LLM might be using unsupported formatting
 
 ### Debug Mode
 
-Enable debug logging by setting `log_level: "debug"` in config.json.
+Enable debug logging by setting `"log_level": "debug"` in config.json to see:
+- MarkdownV2 formatting processing details
+- Message parsing and sending information  
+- API call debugging information
+
+### Formatting Status
+
+The bot uses **MarkdownV2** for advanced formatting. If you see literal asterisks (*) or other formatting characters instead of rendered formatting:
+
+1. Enable debug logging: `"log_level": "debug"` in config.json
+2. Check the logs for formatting processing messages
+3. Ensure the LLM is generating compatible markdown
+4. Report any persistent issues with log details
 
 ### Getting Help
 

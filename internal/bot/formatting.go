@@ -1,73 +1,23 @@
 package bot
 
 import (
-	"regexp"
 	"strings"
 )
 
 // formatForMarkdownV2 processes text to be compatible with Telegram's MarkdownV2 format
 func (b *Bot) formatForMarkdownV2(text string) string {
-	// First, let's handle code blocks to protect them from escaping
-	codeBlockRegex := regexp.MustCompile("```([^`]*)```")
-	codeBlocks := make(map[string]string)
-	blockIndex := 0
+	// TEMPORARY MINIMAL PROCESSING - Testing basic MarkdownV2
+	// Just do basic table conversion and minimal escaping
 	
-	// Extract and store code blocks
-	text = codeBlockRegex.ReplaceAllStringFunc(text, func(match string) string {
-		placeholder := "___CODEBLOCK_" + string(rune(blockIndex)) + "___"
-		codeBlocks[placeholder] = match
-		blockIndex++
-		return placeholder
-	})
-	
-	// Handle inline code to protect it from escaping
-	inlineCodeRegex := regexp.MustCompile("`([^`]+)`")
-	inlineCodes := make(map[string]string)
-	codeIndex := 0
-	
-	text = inlineCodeRegex.ReplaceAllStringFunc(text, func(match string) string {
-		placeholder := "___INLINECODE_" + string(rune(codeIndex)) + "___"
-		inlineCodes[placeholder] = match
-		codeIndex++
-		return placeholder
-	})
-	
-	// Convert markdown tables to better format for Telegram
+	// Convert tables first
 	text = b.convertTablesToMarkdownV2(text)
 	
-	// Convert headers to bold formatting
+	// Convert headers to bold formatting  
 	text = b.convertHeadersToMarkdownV2(text)
 	
-	// Escape special characters for MarkdownV2
-	text = b.escapeMarkdownV2(text)
-	
-	// Restore code blocks and inline codes
-	for placeholder, original := range codeBlocks {
-		// Escape backticks and backslashes in code blocks
-		escaped := strings.ReplaceAll(original, "\\", "\\\\")
-		escaped = strings.ReplaceAll(escaped, "`", "\\`")
-		text = strings.ReplaceAll(text, placeholder, escaped)
-	}
-	
-	for placeholder, original := range inlineCodes {
-		// Escape backticks and backslashes in inline code
-		escaped := strings.ReplaceAll(original, "\\", "\\\\")
-		escaped = strings.ReplaceAll(escaped, "`", "\\`")
-		text = strings.ReplaceAll(text, placeholder, escaped)
-	}
-	
-	return text
-}
-
-// escapeMarkdownV2 escapes special characters for MarkdownV2
-func (b *Bot) escapeMarkdownV2(text string) string {
-	// Characters that need escaping in MarkdownV2:
-	// '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'
-	specialChars := []string{"_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"}
-	
-	for _, char := range specialChars {
-		text = strings.ReplaceAll(text, char, "\\"+char)
-	}
+	// Only escape the most essential characters that commonly break parsing
+	text = strings.ReplaceAll(text, ".", "\\.")
+	text = strings.ReplaceAll(text, "!", "\\!")
 	
 	return text
 }
@@ -76,14 +26,13 @@ func (b *Bot) escapeMarkdownV2(text string) string {
 func (b *Bot) convertTablesToMarkdownV2(text string) string {
 	lines := strings.Split(text, "\n")
 	var result []string
-	inTable := false
 	
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		
-		// Check if this is a table line (starts and ends with |)
+		// Simple table detection: starts and ends with |
 		if strings.HasPrefix(trimmed, "|") && strings.HasSuffix(trimmed, "|") && len(trimmed) > 2 {
-			// Check if next line is a separator (contains | and -)
+			// Check if this might be a header (next line has dashes)
 			isHeader := false
 			if i+1 < len(lines) {
 				nextLine := strings.TrimSpace(lines[i+1])
@@ -92,39 +41,28 @@ func (b *Bot) convertTablesToMarkdownV2(text string) string {
 				}
 			}
 			
-			if !inTable {
-				inTable = true
-				result = append(result, "") // Add blank line before table
-			}
-			
-			// Convert table row to formatted text
+			// Convert to bullet point format
 			cells := strings.Split(strings.Trim(trimmed, "|"), "|")
-			var formattedCells []string
+			var cleanCells []string
 			
 			for _, cell := range cells {
 				cell = strings.TrimSpace(cell)
-				if isHeader && cell != "" {
-					formattedCells = append(formattedCells, "*"+cell+"*") // Bold headers
-				} else {
-					formattedCells = append(formattedCells, cell)
+				if cell != "" {
+					if isHeader {
+						cleanCells = append(cleanCells, "*"+cell+"*")
+					} else {
+						cleanCells = append(cleanCells, cell)
+					}
 				}
 			}
 			
-			result = append(result, "• "+strings.Join(formattedCells, " | "))
-			
-			// Skip the separator line for headers
-			if isHeader && i+1 < len(lines) {
-				nextLine := strings.TrimSpace(lines[i+1])
-				if strings.Contains(nextLine, "-") && strings.Contains(nextLine, "|") {
-					i++ // Skip separator line
-					continue
-				}
+			if len(cleanCells) > 0 {
+				result = append(result, "• "+strings.Join(cleanCells, " | "))
 			}
+		} else if strings.Contains(trimmed, "|") && strings.Contains(trimmed, "-") && len(strings.TrimSpace(trimmed)) > 0 {
+			// Skip separator lines
+			continue
 		} else {
-			if inTable {
-				inTable = false
-				result = append(result, "") // Add blank line after table
-			}
 			result = append(result, line)
 		}
 	}
@@ -136,10 +74,10 @@ func (b *Bot) convertTablesToMarkdownV2(text string) string {
 func (b *Bot) convertHeadersToMarkdownV2(text string) string {
 	lines := strings.Split(text, "\n")
 	var result []string
-	
+
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		
+
 		// Handle headers (# ## ### etc.)
 		if strings.HasPrefix(trimmed, "#") {
 			// Count the number of # characters
@@ -151,10 +89,10 @@ func (b *Bot) convertHeadersToMarkdownV2(text string) string {
 					break
 				}
 			}
-			
+
 			// Extract header text
 			headerText := strings.TrimSpace(trimmed[headerLevel:])
-			
+
 			if headerText != "" {
 				// Convert to bold formatting based on level
 				switch headerLevel {
@@ -170,29 +108,29 @@ func (b *Bot) convertHeadersToMarkdownV2(text string) string {
 			result = append(result, line)
 		}
 	}
-	
+
 	return strings.Join(result, "\n")
 }
 
 // createSystemMessageForMarkdownV2 creates an appropriate system message for MarkdownV2 formatting
 func (b *Bot) createSystemMessageForMarkdownV2() string {
-	return `You are a helpful assistant. Format your responses appropriately for Telegram using these guidelines:
+	return `You are a helpful assistant. Format your responses for Telegram using simple, clean formatting:
 
-FORMATTING RULES:
-- Use *bold text* for emphasis and headers
-- Use _italic text_ for subtle emphasis  
-- Use ` + "`inline code`" + ` for commands, variables, file names
-- Use ` + "```code blocks```" + ` for multi-line code
-- Use >quoted text for important notes or citations
+FORMATTING:
+- Use *bold text* for important points and headers  
+- Use _italic text_ for emphasis
+- Use ` + "`inline code`" + ` for commands and technical terms
+- Use ` + "```code blocks```" + ` for longer code
 
-TABLES: Instead of markdown tables, use formatted lists:
-• *Header 1* | *Header 2* | *Header 3*
-• Value 1 | Value 2 | Value 3
-• Value A | Value B | Value C
+STRUCTURE:
+- Use bullet points (•) for lists
+- Keep paragraphs short and readable
+- Use blank lines to separate sections
 
-LISTS: Use bullet points (•) or numbers (1.)
+FOR TABLES: Use simple bullet-point format instead of markdown tables:
+• *Column 1* | *Column 2* | *Column 3*  
+• Data 1 | Data 2 | Data 3
+• Data A | Data B | Data C
 
-AVOID: Don't use these characters unnecessarily: # + - = | { } . ! [ ] ( ) ~ 
-
-Keep responses clear, well-structured, and easy to read on mobile devices.`
-} 
+Keep responses clear and mobile-friendly. Avoid complex formatting.`
+}

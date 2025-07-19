@@ -217,14 +217,18 @@ func (b *Bot) sendMessage(userID int64, text string) error {
 
 // sendMessageWithKeyboard sends a message with an inline keyboard
 func (b *Bot) sendMessageWithKeyboard(userID int64, text, parseMode string, keyboard *tgbotapi.InlineKeyboardMarkup) error {
+	originalText := text
+
 	// Format text for MarkdownV2 if using MarkdownV2 parse mode
 	if parseMode == "MarkdownV2" {
 		text = b.formatForMarkdownV2(text)
+		log.Debugf("MarkdownV2 formatting applied - Original length: %d, Formatted length: %d", len(originalText), len(text))
 	}
 
 	msg := tgbotapi.NewMessage(userID, text)
 	if parseMode != "" {
 		msg.ParseMode = parseMode
+		log.Debugf("Sending message with parse mode: %s", parseMode)
 	}
 	if keyboard != nil {
 		msg.ReplyMarkup = keyboard
