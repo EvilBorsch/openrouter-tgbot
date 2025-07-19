@@ -116,7 +116,7 @@ func (c *Client) ChatCompletion(req ChatCompletionRequest) (*ChatCompletionRespo
 		req.Temperature = 0.7
 	}
 	if req.MaxTokens == 0 {
-		req.MaxTokens = 2000
+		req.MaxTokens = 200_000
 	}
 
 	// Marshal request
