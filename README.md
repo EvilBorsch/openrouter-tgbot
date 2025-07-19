@@ -14,7 +14,7 @@ A powerful Telegram bot that provides access to various Large Language Models (L
 - **Data Persistence**: All settings and chat history are saved
 - **Docker Support**: Easy deployment and scaling
 - **Auto-Restart**: Graceful handling of crashes and restarts
-- **Markdown Support**: Rich text formatting in responses
+- **Advanced Formatting**: MarkdownV2 support with proper tables, headers, and rich text
 - **Responsive UX**: Continuous typing indicators during API calls
 
 ## 🚀 Quick Start
@@ -152,6 +152,8 @@ The bot features an **intuitive button-based interface** for easy navigation:
 - **Typing Indicators**: Bot shows "typing..." throughout API processing
 - **Extended Timeout**: Up to 2 minutes for complex requests
 - **Real-time Feedback**: Continuous indicators so you know it's working
+- **Rich Formatting**: Tables, headers, code blocks rendered beautifully
+- **Smart Text Processing**: Automatic escaping and formatting for Telegram
 
 ### How to Use the Bot
 
@@ -385,6 +387,12 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - Manual fix: `sudo chown -R $(id -u):$(id -g) data/`
    - Or rebuild container: `make docker-build && make deploy`
 
+6. **Formatting issues or broken messages**
+   - The bot uses MarkdownV2 with automatic text processing
+   - Special characters are automatically escaped
+   - Tables and headers are converted to Telegram-friendly format
+   - If issues persist, the LLM might be using unsupported formatting
+
 ### Debug Mode
 
 Enable debug logging by setting `log_level: "debug"` in config.json.
@@ -402,6 +410,8 @@ Enable debug logging by setting `log_level: "debug"` in config.json.
 - **Memory Efficient**: File-based storage with smart caching
 - **Extended Timeout**: 2-minute API timeout for complex requests
 - **Responsive UX**: Continuous typing indicators during processing
+- **Advanced Formatting**: MarkdownV2 with automatic text processing and escaping
+- **Smart Message Splitting**: Long responses split while preserving formatting
 - **Rate Limiting**: Built-in protection against API limits
 - **Message Queuing**: Handles message bursts gracefully
 - **Auto-scaling**: Docker containers can be replicated

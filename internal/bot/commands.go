@@ -17,19 +17,19 @@ This bot provides access to various LLM models through OpenRouter.
 *Quick Start:*
 • Just type any message to chat with the AI
 • Use the menu buttons below for settings and commands
-• The bot supports Markdown formatting
+• The bot supports advanced formatting
 
 *Features:*
 ✅ Multiple LLM models support
 ✅ Chat history modes
-✅ Expense tracking  
+✅ Expense tracking
 ✅ Custom model management
 ✅ Message splitting for long responses
 
 Use the buttons below to get started!`
 
 	keyboard := b.createMainMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, welcomeMessage, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, welcomeMessage, "MarkdownV2", keyboard)
 }
 
 // handleMenuCommand handles the /menu command
@@ -53,7 +53,7 @@ Welcome to your AI assistant! Choose an option below or just start typing to cha
 Choose an option below:`
 
 	keyboard := b.createMainMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, menuMessage, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, menuMessage, "MarkdownV2", keyboard)
 }
 
 // handleModeCommand handles the /mode command
@@ -106,7 +106,7 @@ func (b *Bot) handleModeCommand(userID int64, args string) {
 	}
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
 }
 
 // handleModelCommand handles the /model command
@@ -158,7 +158,7 @@ func (b *Bot) handleModelCommand(userID int64, args string) {
 	message += "*Tip:* The pricing and capabilities may vary between models. Check expenses to monitor usage."
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
 }
 
 // handleAddModelCommand handles the /addmodel command
@@ -254,7 +254,7 @@ func (b *Bot) handleListModelsCommand(userID int64) {
 	message += "\n*Usage:* Click a model button above or type `/model model-name`"
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
 }
 
 // handleExpensesCommand handles the /expenses command
@@ -317,7 +317,7 @@ func (b *Bot) handleExpensesCommand(userID int64) {
 	}
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
 }
 
 // handleClearCommand handles the /clear command
@@ -332,7 +332,7 @@ func (b *Bot) handleClearCommand(userID int64) {
 	message += "Your conversation history has been deleted. The AI will start fresh with your next message."
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
 }
 
 // handleStatusCommand handles the /status command
@@ -362,5 +362,5 @@ func (b *Bot) handleStatusCommand(userID int64) {
 	message += "Use the buttons below for easy navigation."
 
 	keyboard := b.createMainMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
 }

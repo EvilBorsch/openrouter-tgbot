@@ -212,11 +212,16 @@ func (b *Bot) handleCallbackQuery(callback *tgbotapi.CallbackQuery) {
 
 // sendMessage sends a message to a user
 func (b *Bot) sendMessage(userID int64, text string) error {
-	return b.sendMessageWithKeyboard(userID, text, "Markdown", nil)
+	return b.sendMessageWithKeyboard(userID, text, "MarkdownV2", nil)
 }
 
 // sendMessageWithKeyboard sends a message with an inline keyboard
 func (b *Bot) sendMessageWithKeyboard(userID int64, text, parseMode string, keyboard *tgbotapi.InlineKeyboardMarkup) error {
+	// Format text for MarkdownV2 if using MarkdownV2 parse mode
+	if parseMode == "MarkdownV2" {
+		text = b.formatForMarkdownV2(text)
+	}
+
 	msg := tgbotapi.NewMessage(userID, text)
 	if parseMode != "" {
 		msg.ParseMode = parseMode
@@ -232,8 +237,39 @@ func (b *Bot) sendMessageWithKeyboard(userID int64, text, parseMode string, keyb
 	return err
 }
 
+// sendLLMResponse sends an LLM response with proper MarkdownV2 formatting
+func (b *Bot) sendLLMResponse(userID int64, response string) error {
+	// Format the LLM response for MarkdownV2
+	formattedResponse := b.formatForMarkdownV2(response)
+
+	// Split message if too long
+	messages := b.splitMessage(formattedResponse, b.config.MaxMessageLength)
+
+	for _, msgText := range messages {
+		msg := tgbotapi.NewMessage(userID, msgText)
+		msg.ParseMode = "MarkdownV2"
+
+		if _, err := b.api.Send(msg); err != nil {
+			log.Errorf("Failed to send LLM response to user %d: %v", userID, err)
+			return err
+		}
+
+		// Small delay between messages to avoid rate limiting
+		if len(messages) > 1 {
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
+
+	return nil
+}
+
 // sendMessageWithMode sends a message with specific parse mode
 func (b *Bot) sendMessageWithMode(userID int64, text, parseMode string) error {
+	// Format text for MarkdownV2 if using MarkdownV2 parse mode
+	if parseMode == "MarkdownV2" {
+		text = b.formatForMarkdownV2(text)
+	}
+
 	// Split message if too long
 	messages := b.splitMessage(text, b.config.MaxMessageLength)
 
@@ -321,10 +357,10 @@ func (b *Bot) handleChatMessage(message *tgbotapi.Message) {
 	// Prepare messages for LLM
 	var messages []storage.ChatMessage
 
-	// Add system message for markdown formatting
+	// Add system message for MarkdownV2 formatting
 	systemMsg := storage.ChatMessage{
 		Role:    "system",
-		Content: "You are a helpful assistant. Format your responses using Markdown syntax for better readability in Telegram. Use **bold**, *italic*, `code`, and other Markdown features appropriately.",
+		Content: b.createSystemMessageForMarkdownV2(),
 	}
 	messages = append(messages, systemMsg)
 
@@ -376,8 +412,8 @@ func (b *Bot) handleChatMessage(message *tgbotapi.Message) {
 
 	log.Infof("LLM request completed for user %d", userID)
 
-	// Send response
-	if err := b.sendMessage(userID, response); err != nil {
+	// Send response (format LLM response for MarkdownV2)
+	if err := b.sendLLMResponse(userID, response); err != nil {
 		log.Errorf("Failed to send response: %v", err)
 		return
 	}
