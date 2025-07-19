@@ -1,0 +1,14 @@
+{
+  "telegram_token": "YOUR_BOT_TOKEN_FROM_BOTFATHER",
+  "openrouter_api_key": "YOUR_OPENROUTER_API_KEY",
+  "openrouter_base_url": "https://openrouter.ai/api/v1",
+  "allowed_users": [
+    123456789,
+    987654321
+  ],
+  "default_model": "openai/gpt-3.5-turbo",
+  "default_chat_mode": "without_history",
+  "max_message_length": 4096,
+  "log_level": "info",
+  "data_directory": "data"
+} 
