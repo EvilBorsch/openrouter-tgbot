@@ -16,7 +16,7 @@ This bot provides access to various LLM models through OpenRouter.
 
 *Quick Start:*
 • Just type any message to chat with the AI
-• Use /menu to see all available commands
+• Use the menu buttons below for settings and commands
 • The bot supports Markdown formatting
 
 *Features:*
@@ -26,34 +26,34 @@ This bot provides access to various LLM models through OpenRouter.
 ✅ Custom model management
 ✅ Message splitting for long responses
 
-Type /menu to get started!`
+Use the buttons below to get started!`
 
-	b.sendMessage(userID, welcomeMessage)
+	keyboard := b.createMainMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, welcomeMessage, "Markdown", keyboard)
 }
 
 // handleMenuCommand handles the /menu command
 func (b *Bot) handleMenuCommand(userID int64) {
-	menuMessage := `📋 *Bot Commands Menu*
+	menuMessage := `📋 *Main Menu*
 
-*💬 Chat Commands:*
-• Just type a message - Chat with AI
-• /clear - Clear chat history
+Welcome to your AI assistant! Choose an option below or just start typing to chat with the AI.
 
-*⚙️ Settings:*
-• /mode [with\_history|without\_history] - Change chat mode
-• /model [model\_name] - Change current model  
-• /addmodel [model\_name] - Add custom model
-• /listmodels - List all available models
-• /status - Show current settings
+*Quick Actions:*
+• 💬 Just type a message to chat
+• ⚙️ Settings - Configure chat mode and models
+• 📊 View expenses and usage statistics
+• 🤖 Browse and change AI models
 
-*📊 Information:*
-• /expenses - Show total expenses and usage stats
-• /help - Show this menu
+*Features:*
+✅ Interactive button controls
+✅ Multiple LLM models
+✅ Chat history management
+✅ Real-time expense tracking
 
-*Current Status:*
-You can start chatting immediately! The bot will respond with AI-generated messages formatted in Markdown.`
+Choose an option below:`
 
-	b.sendMessage(userID, menuMessage)
+	keyboard := b.createMainMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, menuMessage, "Markdown", keyboard)
 }
 
 // handleModeCommand handles the /mode command
@@ -105,7 +105,8 @@ func (b *Bot) handleModeCommand(userID int64, args string) {
 		message += "\n\n*Note:* Each message will be processed independently."
 	}
 
-	b.sendMessage(userID, message)
+	keyboard := b.createBackToMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleModelCommand handles the /model command
@@ -154,9 +155,10 @@ func (b *Bot) handleModelCommand(userID int64, args string) {
 	}
 
 	message := fmt.Sprintf("✅ Model changed to: `%s`\n\n", model)
-	message += "*Tip:* The pricing and capabilities may vary between models. Check /expenses to monitor usage."
+	message += "*Tip:* The pricing and capabilities may vary between models. Check expenses to monitor usage."
 
-	b.sendMessage(userID, message)
+	keyboard := b.createBackToMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleAddModelCommand handles the /addmodel command
@@ -249,9 +251,10 @@ func (b *Bot) handleListModelsCommand(userID int64) {
 		}
 	}
 
-	message += "\n*Usage:* `/model model-name`"
+	message += "\n*Usage:* Click a model button above or type `/model model-name`"
 
-	b.sendMessage(userID, message)
+	keyboard := b.createBackToMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleExpensesCommand handles the /expenses command
@@ -302,18 +305,19 @@ func (b *Bot) handleExpensesCommand(userID int64) {
 			start = 0
 		}
 
-				for i := start; i < len(settings.ExpenseHistory); i++ {
+		for i := start; i < len(settings.ExpenseHistory); i++ {
 			expense := settings.ExpenseHistory[i]
-			message += fmt.Sprintf("• %s: $%.6f (%s)\n", 
-				expense.Timestamp.Format("01/02 15:04"), 
-				expense.Cost, 
+			message += fmt.Sprintf("• %s: $%.6f (%s)\n",
+				expense.Timestamp.Format("01/02 15:04"),
+				expense.Cost,
 				expense.Model)
 		}
 	} else {
 		message += "\n*No usage data yet.* Start chatting to see your statistics!"
 	}
 
-	b.sendMessage(userID, message)
+	keyboard := b.createBackToMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleClearCommand handles the /clear command
@@ -327,7 +331,8 @@ func (b *Bot) handleClearCommand(userID int64) {
 	message := "🗑️ *Chat history cleared!*\n\n"
 	message += "Your conversation history has been deleted. The AI will start fresh with your next message."
 
-	b.sendMessage(userID, message)
+	keyboard := b.createBackToMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleStatusCommand handles the /status command
@@ -354,10 +359,8 @@ func (b *Bot) handleStatusCommand(userID int64) {
 	}
 
 	message += "\n*Quick Actions:*\n"
-	message += "• /menu - Show all commands\n"
-	message += "• /model - Change model\n"
-	message += "• /mode - Change chat mode\n"
-	message += "• /expenses - Detailed usage stats"
+	message += "Use the buttons below for easy navigation."
 
-	b.sendMessage(userID, message)
+	keyboard := b.createMainMenuKeyboard()
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }

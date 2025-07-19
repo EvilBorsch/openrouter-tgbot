@@ -4,16 +4,18 @@ A powerful Telegram bot that provides access to various Large Language Models (L
 
 ## 🌟 Features
 
+- **Interactive Interface**: Intuitive button-based navigation with clickable controls
 - **Multiple LLM Support**: Access various models from OpenRouter (GPT-4, Claude, Gemini, etc.)
-- **Chat Modes**: Switch between conversation modes with or without history
+- **Smart Chat Modes**: Switch between conversation modes with visual controls
 - **Precise Expense Tracking**: Real-time costs via OpenRouter generation stats API
-- **Custom Models**: Add and manage your preferred models
+- **Custom Models**: Add and manage your preferred models with easy selection
 - **Message Splitting**: Automatically handles long responses
 - **User Authentication**: Restrict access to authorized users only
 - **Data Persistence**: All settings and chat history are saved
 - **Docker Support**: Easy deployment and scaling
 - **Auto-Restart**: Graceful handling of crashes and restarts
 - **Markdown Support**: Rich text formatting in responses
+- **Responsive UX**: Continuous typing indicators during API calls
 
 ## 🚀 Quick Start
 
@@ -114,25 +116,50 @@ Edit `config.json` with your settings:
 
 ## 📱 Usage
 
-### Bot Commands
+### Interactive Interface
 
-| Command | Description |
+The bot features an **intuitive button-based interface** for easy navigation:
+
+- **Main Menu**: Access all features with clickable buttons
+- **Settings**: Configure chat modes and models interactively  
+- **Model Selection**: Choose from popular models with one click
+- **Confirmations**: Safe actions with yes/no buttons
+- **Navigation**: Easy back buttons and breadcrumb navigation
+
+### Bot Commands (Text & Buttons)
+
+| Command/Button | Description |
 |---------|-------------|
-| `/start` | Welcome message and quick start guide |
-| `/menu` | Show all available commands |
-| `/mode [with_history\|without_history]` | Change chat mode |
-| `/model [model_name]` | Change current LLM model |
-| `/addmodel [model_name]` | Add a custom model |
-| `/listmodels` | Show all available models |
-| `/expenses` | Show usage statistics and costs |
-| `/clear` | Clear chat history |
-| `/status` | Show current settings |
-| `/help` | Show help menu |
+| `/start` or 🏠 | Welcome message with main menu |
+| `/menu` or 📋 | Show interactive main menu |
+| ⚙️ Settings | Configure chat mode and models |
+| 🤖 Models | Browse and select AI models |
+| 📊 Expenses | View usage statistics and costs |
+| 📈 Status | Show current settings |
+| 🗑️ Clear | Clear chat history (with confirmation) |
+| `/addmodel [model_name]` | Add a custom model (text only) |
 
 ### Chat Modes
 
 - **`without_history`** (default): Each message is independent
 - **`with_history`**: AI remembers previous conversation context
+
+### User Experience
+
+- **Button Interface**: Click buttons instead of typing commands
+- **Visual Navigation**: Clear menu hierarchies with back buttons  
+- **Safety Confirmations**: Important actions require confirmation
+- **Typing Indicators**: Bot shows "typing..." throughout API processing
+- **Extended Timeout**: Up to 2 minutes for complex requests
+- **Real-time Feedback**: Continuous indicators so you know it's working
+
+### How to Use the Bot
+
+1. **Start**: Send `/start` to see the main menu with buttons
+2. **Chat**: Just type any message to talk with the AI
+3. **Configure**: Use ⚙️ Settings to change models and chat modes
+4. **Monitor**: Check 📊 Expenses to track your usage and costs
+5. **Navigate**: Use back buttons to return to previous menus
 
 ### Popular Models
 
@@ -345,6 +372,7 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - Check your OpenRouter API key
    - Verify you have credits in your account
    - Ensure model name is correct
+   - Note: Bot waits up to 2 minutes for API responses
 
 4. **Bot not responding**
    - Check logs: `make logs`
@@ -372,6 +400,8 @@ Enable debug logging by setting `log_level: "debug"` in config.json.
 
 - **Concurrent Handling**: Multiple users supported simultaneously
 - **Memory Efficient**: File-based storage with smart caching
+- **Extended Timeout**: 2-minute API timeout for complex requests
+- **Responsive UX**: Continuous typing indicators during processing
 - **Rate Limiting**: Built-in protection against API limits
 - **Message Queuing**: Handles message bursts gracefully
 - **Auto-scaling**: Docker containers can be replicated

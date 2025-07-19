@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -64,12 +65,13 @@ func (b *Bot) Start(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case update := <-b.updates:
-			if update.Message == nil {
-				continue
+			if update.Message != nil {
+				// Process message in goroutine to avoid blocking
+				go b.handleMessage(update.Message)
+			} else if update.CallbackQuery != nil {
+				// Handle callback query from inline buttons
+				go b.handleCallbackQuery(update.CallbackQuery)
 			}
-
-			// Process message in goroutine to avoid blocking
-			go b.handleMessage(update.Message)
 		}
 	}
 }
@@ -80,6 +82,26 @@ func (b *Bot) Stop() {
 		b.api.StopReceivingUpdates()
 	}
 	log.Info("Bot stopped")
+}
+
+// sendTypingIndicator sends a typing indicator with a context for cancellation
+func (b *Bot) sendTypingIndicator(ctx context.Context, userID int64) {
+	ticker := time.NewTicker(4 * time.Second) // Send typing indicator every 4 seconds
+	defer ticker.Stop()
+
+	// Send initial typing indicator
+	typing := tgbotapi.NewChatAction(userID, tgbotapi.ChatTyping)
+	b.api.Send(typing)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			typing := tgbotapi.NewChatAction(userID, tgbotapi.ChatTyping)
+			b.api.Send(typing)
+		}
+	}
 }
 
 // handleMessage handles incoming messages
@@ -133,9 +155,81 @@ func (b *Bot) handleCommand(message *tgbotapi.Message) {
 	}
 }
 
+// handleCallbackQuery handles button presses from inline keyboards
+func (b *Bot) handleCallbackQuery(callback *tgbotapi.CallbackQuery) {
+	// Check if user is allowed
+	if !b.config.IsUserAllowed(callback.From.ID) {
+		log.Warnf("Unauthorized user %d (%s) tried to use bot buttons", callback.From.ID, callback.From.UserName)
+		return
+	}
+
+	userID := callback.From.ID
+	data := callback.Data
+
+	log.Infof("Button pressed by user %d: %s", userID, data)
+
+	// Answer the callback query to remove loading state
+	answerCallback := tgbotapi.NewCallback(callback.ID, "")
+	b.api.Request(answerCallback)
+
+	// Handle different button actions
+	switch {
+	case data == "menu" || data == "back_to_menu":
+		b.handleMenuCommand(userID)
+	case data == "settings":
+		b.handleSettingsMenu(userID)
+	case data == "expenses":
+		b.handleExpensesCommand(userID)
+	case data == "status":
+		b.handleStatusCommand(userID)
+	case data == "listmodels":
+		b.handleListModelsCommand(userID)
+	case data == "clear":
+		b.handleClearWithConfirmation(userID)
+	case data == "confirm_clear":
+		b.handleClearCommand(userID)
+	case data == "cancel_clear":
+		b.sendMessage(userID, "❌ Clear operation cancelled.")
+	case data == "help":
+		b.handleStartCommand(userID)
+	case data == "chat_mode":
+		b.handleChatModeMenu(userID)
+	case data == "change_model":
+		b.handleModelSelectionMenu(userID)
+	case data == "add_model":
+		b.handleAddModelPrompt(userID)
+	case data == "mode_with_history":
+		b.handleModeCommand(userID, "with_history")
+	case data == "mode_without_history":
+		b.handleModeCommand(userID, "without_history")
+	case strings.HasPrefix(data, "model_"):
+		modelName := strings.TrimPrefix(data, "model_")
+		b.handleModelCommand(userID, modelName)
+	default:
+		b.sendMessage(userID, "Unknown button action. Please try again.")
+	}
+}
+
 // sendMessage sends a message to a user
 func (b *Bot) sendMessage(userID int64, text string) error {
-	return b.sendMessageWithMode(userID, text, "Markdown")
+	return b.sendMessageWithKeyboard(userID, text, "Markdown", nil)
+}
+
+// sendMessageWithKeyboard sends a message with an inline keyboard
+func (b *Bot) sendMessageWithKeyboard(userID int64, text, parseMode string, keyboard *tgbotapi.InlineKeyboardMarkup) error {
+	msg := tgbotapi.NewMessage(userID, text)
+	if parseMode != "" {
+		msg.ParseMode = parseMode
+	}
+	if keyboard != nil {
+		msg.ReplyMarkup = keyboard
+	}
+
+	_, err := b.api.Send(msg)
+	if err != nil {
+		log.Errorf("Failed to send message to user %d: %v", userID, err)
+	}
+	return err
 }
 
 // sendMessageWithMode sends a message with specific parse mode
@@ -254,17 +348,33 @@ func (b *Bot) handleChatMessage(message *tgbotapi.Message) {
 	// Add current user message
 	messages = append(messages, userMsg)
 
-	// Send typing indicator
-	typing := tgbotapi.NewChatAction(userID, tgbotapi.ChatTyping)
-	b.api.Send(typing)
+	// Create context for typing indicator
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Start typing indicator in background
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		b.sendTypingIndicator(ctx, userID)
+	}()
 
 	// Get LLM response
+	log.Infof("Starting LLM request for user %d with model %s", userID, settings.CurrentModel)
 	response, err := b.llmClient.GetChatResponse(settings.CurrentModel, messages, userID, b.storage)
+
+	// Stop typing indicator
+	cancel()
+	wg.Wait()
+
 	if err != nil {
 		log.Errorf("Failed to get LLM response: %v", err)
 		b.sendMessage(userID, fmt.Sprintf("Sorry, there was an error getting a response: %v", err))
 		return
 	}
+
+	log.Infof("LLM request completed for user %d", userID)
 
 	// Send response
 	if err := b.sendMessage(userID, response); err != nil {
