@@ -198,6 +198,93 @@ FOR TABLES: Use simple bullet-point format instead of markdown tables:
 Keep responses clear and mobile-friendly. Preserve line breaks and structure.`
 }
 
+// convertTablesToHTML converts tables for HTML formatting (most reliable for international text)
+func (b *Bot) convertTablesToHTML(text string) string {
+	// First escape HTML entities to prevent parsing issues
+	text = b.escapeHTMLEntities(text)
+
+	lines := strings.Split(text, "\n")
+	var result []string
+
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Simple table detection: starts and ends with |
+		if strings.HasPrefix(trimmed, "|") && strings.HasSuffix(trimmed, "|") && len(trimmed) > 2 {
+			// Check if this might be a header (next line has dashes)
+			isHeader := false
+			if i+1 < len(lines) {
+				nextLine := strings.TrimSpace(lines[i+1])
+				if strings.Contains(nextLine, "-") && strings.Contains(nextLine, "|") {
+					isHeader = true
+				}
+			}
+
+			// Convert to bullet point format
+			cells := strings.Split(strings.Trim(trimmed, "|"), "|")
+			var cleanCells []string
+
+			for _, cell := range cells {
+				cell = strings.TrimSpace(cell)
+				if cell != "" {
+					if isHeader {
+						cleanCells = append(cleanCells, "<b>"+cell+"</b>") // Use <b> for bold in HTML
+					} else {
+						cleanCells = append(cleanCells, cell)
+					}
+				}
+			}
+
+			if len(cleanCells) > 0 {
+				result = append(result, "• "+strings.Join(cleanCells, " | "))
+			}
+		} else if strings.Contains(trimmed, "|") && strings.Contains(trimmed, "-") && len(strings.TrimSpace(trimmed)) > 0 {
+			// Skip separator lines
+			continue
+		} else {
+			result = append(result, line)
+		}
+	}
+
+	return strings.Join(result, "\n")
+}
+
+// escapeHTMLEntities escapes HTML entities to prevent parsing issues
+func (b *Bot) escapeHTMLEntities(text string) string {
+	// Only escape the entities that would break HTML parsing
+	// Be conservative to preserve text structure
+	text = strings.ReplaceAll(text, "&", "&amp;") // Must be first
+	text = strings.ReplaceAll(text, "<", "&lt;")
+	text = strings.ReplaceAll(text, ">", "&gt;")
+
+	return text
+}
+
+// createSystemMessageForHTML creates an appropriate system message for HTML formatting
+func (b *Bot) createSystemMessageForHTML() string {
+	return `You are a helpful assistant. Format your responses for Telegram using HTML formatting:
+
+FORMATTING:
+- Use <b>bold text</b> for important points and headers  
+- Use <i>italic text</i> for emphasis
+- Use <code>inline code</code> for commands and technical terms
+- Use <pre>code blocks</pre> for longer code
+- Use <u>underlined text</u> for special emphasis (optional)
+
+STRUCTURE:
+- Use bullet points (•) for lists
+- Keep paragraphs short and readable
+- Use blank lines to separate sections
+- Preserve line breaks for readability
+
+FOR TABLES: Use simple bullet-point format instead of markdown tables:
+• <b>Column 1</b> | <b>Column 2</b> | <b>Column 3</b>  
+• Data 1 | Data 2 | Data 3
+• Data A | Data B | Data C
+
+Keep responses clear and mobile-friendly. HTML formatting works great with all languages including Russian, Chinese, Arabic, etc.`
+}
+
 // createSystemMessageForMarkdownV2 creates an appropriate system message for MarkdownV2 formatting
 func (b *Bot) createSystemMessageForMarkdownV2() string {
 	return `You are a helpful assistant. Format your responses for Telegram using simple, clean formatting:

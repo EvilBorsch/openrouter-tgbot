@@ -10,16 +10,16 @@ import (
 
 // handleStartCommand handles the /start and /help commands
 func (b *Bot) handleStartCommand(userID int64) {
-	welcomeMessage := `🤖 *Welcome to LLM Chat Bot!*
+	welcomeMessage := `🤖 <i>Welcome to LLM Chat Bot!</i>
 
 This bot provides access to various LLM models through OpenRouter.
 
-*Quick Start:*
+<i>Quick Start:</i>
 • Just type any message to chat with the AI
 • Use the menu buttons below for settings and commands
 • The bot supports advanced formatting
 
-*Features:*
+<i>Features:</i>
 ✅ Multiple LLM models support
 ✅ Chat history modes
 ✅ Expense tracking
@@ -29,22 +29,22 @@ This bot provides access to various LLM models through OpenRouter.
 Use the buttons below to get started!`
 
 	keyboard := b.createMainMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, welcomeMessage, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, welcomeMessage, "HTML", keyboard)
 }
 
 // handleMenuCommand handles the /menu command
 func (b *Bot) handleMenuCommand(userID int64) {
-	menuMessage := `📋 *Main Menu*
+	menuMessage := `📋 <i>Main Menu</i>
 
 Welcome to your AI assistant! Choose an option below or just start typing to chat with the AI.
 
-*Quick Actions:*
+<i>Quick Actions:</i>
 • 💬 Just type a message to chat
 • ⚙️ Settings - Configure chat mode and models
 • 📊 View expenses and usage statistics
 • 🤖 Browse and change AI models
 
-*Features:*
+<i>Features:</i>
 ✅ Interactive button controls
 ✅ Multiple LLM models
 ✅ Chat history management
@@ -53,7 +53,7 @@ Welcome to your AI assistant! Choose an option below or just start typing to cha
 Choose an option below:`
 
 	keyboard := b.createMainMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, menuMessage, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, menuMessage, "HTML", keyboard)
 }
 
 // handleModeCommand handles the /mode command
@@ -66,11 +66,11 @@ func (b *Bot) handleModeCommand(userID int64, args string) {
 			return
 		}
 
-		message := fmt.Sprintf("🔧 *Current chat mode:* `%s`\n\n", settings.ChatMode)
-		message += "*Available modes:*\n"
-		message += "• `with_history` - AI remembers previous messages\n"
-		message += "• `without_history` - Each message is independent\n\n"
-		message += "*Usage:* `/mode with_history` or `/mode without_history`"
+		message := fmt.Sprintf("🔧 <i>Current chat mode:</i> <code>%s</code>\n\n", settings.ChatMode)
+		message += "<i>Available modes:</i>\n"
+		message += "• <code>with_history</code> - AI remembers previous messages\n"
+		message += "• <code>without_history</code> - Each message is independent\n\n"
+		message += "<i>Usage:</i> <code>/mode with_history</code> or <code>/mode without_history</code>"
 
 		b.sendMessage(userID, message)
 		return
@@ -78,7 +78,7 @@ func (b *Bot) handleModeCommand(userID int64, args string) {
 
 	mode := strings.ToLower(strings.TrimSpace(args))
 	if mode != "with_history" && mode != "without_history" {
-		b.sendMessage(userID, "❌ Invalid mode. Use: `with_history` or `without_history`")
+		b.sendMessage(userID, "❌ Invalid mode. Use: <code>with_history</code> or <code>without_history</code>")
 		return
 	}
 
@@ -98,15 +98,15 @@ func (b *Bot) handleModeCommand(userID int64, args string) {
 		return
 	}
 
-	message := fmt.Sprintf("✅ Chat mode changed to: `%s`", mode)
+	message := fmt.Sprintf("✅ Chat mode changed to: <code>%s</code>", mode)
 	if mode == "with_history" {
-		message += "\n\n*Note:* The AI will now remember your previous messages in this session."
+		message += "\n\n<i>Note:</i> The AI will now remember your previous messages in this session."
 	} else {
-		message += "\n\n*Note:* Each message will be processed independently."
+		message += "\n\n<i>Note:</i> Each message will be processed independently."
 	}
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "HTML", keyboard)
 }
 
 // handleModelCommand handles the /model command
@@ -119,14 +119,14 @@ func (b *Bot) handleModelCommand(userID int64, args string) {
 			return
 		}
 
-		message := fmt.Sprintf("🤖 *Current model:* `%s`\n\n", settings.CurrentModel)
-		message += "*Popular models:*\n"
-		message += "• `openai/gpt-4` - Most capable, higher cost\n"
-		message += "• `openai/gpt-3.5-turbo` - Fast and affordable\n"
-		message += "• `anthropic/claude-3-sonnet` - Great for analysis\n"
-		message += "• `google/gemini-pro` - Google's latest model\n\n"
-		message += "*Usage:* `/model openai/gpt-4`\n"
-		message += "*See all:* `/listmodels`"
+		message := fmt.Sprintf("🤖 <i>Current model:</i> <code>%s</code>\n\n", settings.CurrentModel)
+		message += "<i>Popular models:</i>\n"
+		message += "• <code>openai/gpt-4</code> - Most capable, higher cost\n"
+		message += "• <code>openai/gpt-3.5-turbo</code> - Fast and affordable\n"
+		message += "• <code>anthropic/claude-3-sonnet</code> - Great for analysis\n"
+		message += "• <code>google/gemini-pro</code> - Google's latest model\n\n"
+		message += "<i>Usage:</i> <code>/model openai/gpt-4</code>\n"
+		message += "<i>See all:</i> <code>/listmodels</code>"
 
 		b.sendMessage(userID, message)
 		return
@@ -154,23 +154,23 @@ func (b *Bot) handleModelCommand(userID int64, args string) {
 		return
 	}
 
-	message := fmt.Sprintf("✅ Model changed to: `%s`\n\n", model)
-	message += "*Tip:* The pricing and capabilities may vary between models. Check expenses to monitor usage."
+	message := fmt.Sprintf("✅ Model changed to: <code>%s</code>\n\n", model)
+	message += "<i>Tip:</i> The pricing and capabilities may vary between models. Check expenses to monitor usage."
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "HTML", keyboard)
 }
 
 // handleAddModelCommand handles the /addmodel command
 func (b *Bot) handleAddModelCommand(userID int64, args string) {
 	if args == "" {
-		message := "🔧 *Add Custom Model*\n\n"
-		message += "*Usage:* `/addmodel model-provider/model-name`\n\n"
-		message += "*Examples:*\n"
-		message += "• `/addmodel mistralai/mistral-7b-instruct`\n"
-		message += "• `/addmodel meta-llama/llama-2-70b-chat`\n"
-		message += "• `/addmodel cohere/command-r-plus`\n\n"
-		message += "*Note:* Make sure the model is available on OpenRouter."
+		message := "🔧 <i>Add Custom Model</i>\n\n"
+		message += "<i>Usage:</i> <code>/addmodel model-provider/model-name</code>\n\n"
+		message += "<i>Examples:</i>\n"
+		message += "• <code>/addmodel mistralai/mistral-7b-instruct</code>\n"
+		message += "• <code>/addmodel meta-llama/llama-2-70b-chat</code>\n"
+		message += "• <code>/addmodel cohere/command-r-plus</code>\n\n"
+		message += "<i>Note:</i> Make sure the model is available on OpenRouter."
 
 		b.sendMessage(userID, message)
 		return
@@ -193,7 +193,7 @@ func (b *Bot) handleAddModelCommand(userID int64, args string) {
 	// Check if model already exists
 	for _, existingModel := range settings.CustomModels {
 		if existingModel == model {
-			b.sendMessage(userID, fmt.Sprintf("❌ Model `%s` is already in your list.", model))
+			b.sendMessage(userID, fmt.Sprintf("❌ Model <code>%s</code> is already in your list.", model))
 			return
 		}
 	}
@@ -206,8 +206,8 @@ func (b *Bot) handleAddModelCommand(userID int64, args string) {
 		return
 	}
 
-	message := fmt.Sprintf("✅ Added model: `%s`\n\n", model)
-	message += "You can now use it with: `/model " + model + "`"
+	message := fmt.Sprintf("✅ Added model: <code>%s</code>\n\n", model)
+	message += "You can now use it with: <code>/model " + model + "</code>"
 
 	b.sendMessage(userID, message)
 }
@@ -221,10 +221,10 @@ func (b *Bot) handleListModelsCommand(userID int64) {
 		return
 	}
 
-	message := "🤖 *Available Models*\n\n"
-	message += fmt.Sprintf("*Current:* `%s` ✅\n\n", settings.CurrentModel)
+	message := "🤖 <i>Available Models</i>\n\n"
+	message += fmt.Sprintf("<i>Current:</i> <code>%s</code> ✅\n\n", settings.CurrentModel)
 
-	message += "*Popular Models:*\n"
+	message += "<i>Popular Models:</i>\n"
 	popularModels := []string{
 		"openai/gpt-4",
 		"openai/gpt-3.5-turbo",
@@ -238,23 +238,23 @@ func (b *Bot) handleListModelsCommand(userID int64) {
 		if model == settings.CurrentModel {
 			continue // Skip current model as it's already shown
 		}
-		message += fmt.Sprintf("• `%s`\n", model)
+		message += fmt.Sprintf("• <code>%s</code>\n", model)
 	}
 
 	if len(settings.CustomModels) > 0 {
-		message += "\n*Your Custom Models:*\n"
+		message += "\n<i>Your Custom Models:</i>\n"
 		for _, model := range settings.CustomModels {
 			if model == settings.CurrentModel {
 				continue // Skip current model as it's already shown
 			}
-			message += fmt.Sprintf("• `%s`\n", model)
+			message += fmt.Sprintf("• <code>%s</code>\n", model)
 		}
 	}
 
-	message += "\n*Usage:* Click a model button above or type `/model model-name`"
+	message += "\n<i>Usage:</i> Click a model button above or type <code>/model model-name</code>"
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "HTML", keyboard)
 }
 
 // handleExpensesCommand handles the /expenses command
@@ -266,9 +266,9 @@ func (b *Bot) handleExpensesCommand(userID int64) {
 		return
 	}
 
-	message := "💰 *Your Usage Statistics*\n\n"
-	message += fmt.Sprintf("*Total Expenses:* $%.6f\n", settings.TotalExpenses)
-	message += fmt.Sprintf("*Total Requests:* %d\n", len(settings.ExpenseHistory))
+	message := "💰 <i>Your Usage Statistics</i>\n\n"
+	message += fmt.Sprintf("<i>Total Expenses:</i> $%.6f\n", settings.TotalExpenses)
+	message += fmt.Sprintf("<i>Total Requests:</i> %d\n", len(settings.ExpenseHistory))
 	message += "_Using accurate OpenRouter pricing & native token counts_\n"
 
 	if len(settings.ExpenseHistory) > 0 {
@@ -289,17 +289,17 @@ func (b *Bot) handleExpensesCommand(userID int64) {
 			}
 		}
 
-		message += fmt.Sprintf("*Total Tokens:* %d\n", totalTokens)
-		message += fmt.Sprintf("*Last 7 Days:* $%.6f\n\n", recentExpenses)
+		message += fmt.Sprintf("<i>Total Tokens:</i> %d\n", totalTokens)
+		message += fmt.Sprintf("<i>Last 7 Days:</i> $%.6f\n\n", recentExpenses)
 
 		// Show model usage
-		message += "*Model Usage:*\n"
+		message += "<i>Model Usage:</i>\n"
 		for model, count := range modelUsage {
-			message += fmt.Sprintf("• `%s`: %d requests\n", model, count)
+			message += fmt.Sprintf("• <code>%s</code>: %d requests\n", model, count)
 		}
 
 		// Show recent transactions (last 5)
-		message += "\n*Recent Transactions:*\n"
+		message += "\n<i>Recent Transactions:</i>\n"
 		start := len(settings.ExpenseHistory) - 5
 		if start < 0 {
 			start = 0
@@ -313,11 +313,11 @@ func (b *Bot) handleExpensesCommand(userID int64) {
 				expense.Model)
 		}
 	} else {
-		message += "\n*No usage data yet.* Start chatting to see your statistics!"
+		message += "\n<i>No usage data yet.</i> Start chatting to see your statistics!"
 	}
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "HTML", keyboard)
 }
 
 // handleClearCommand handles the /clear command
@@ -328,11 +328,11 @@ func (b *Bot) handleClearCommand(userID int64) {
 		return
 	}
 
-	message := "🗑️ *Chat history cleared!*\n\n"
+	message := "🗑️ <i>Chat history cleared!</i>\n\n"
 	message += "Your conversation history has been deleted. The AI will start fresh with your next message."
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "HTML", keyboard)
 }
 
 // handleStatusCommand handles the /status command
@@ -344,23 +344,23 @@ func (b *Bot) handleStatusCommand(userID int64) {
 		return
 	}
 
-	message := "📊 *Your Current Settings*\n\n"
-	message += fmt.Sprintf("*User ID:* `%d`\n", settings.UserID)
-	message += fmt.Sprintf("*Current Model:* `%s`\n", settings.CurrentModel)
-	message += fmt.Sprintf("*Chat Mode:* `%s`\n", settings.ChatMode)
-	message += fmt.Sprintf("*Total Expenses:* $%.6f\n", settings.TotalExpenses)
-	message += fmt.Sprintf("*Chat History:* %d messages\n", len(settings.ChatHistory))
-	message += fmt.Sprintf("*Custom Models:* %d\n", len(settings.CustomModels))
-	message += fmt.Sprintf("*Last Updated:* %s\n", settings.LastUpdated.Format("2006-01-02 15:04:05"))
+	message := "📊 <i>Your Current Settings</i>\n\n"
+	message += fmt.Sprintf("<i>User ID:</i> <code>%d</code>\n", settings.UserID)
+	message += fmt.Sprintf("<i>Current Model:</i> <code>%s</code>\n", settings.CurrentModel)
+	message += fmt.Sprintf("<i>Chat Mode:</i> <code>%s</code>\n", settings.ChatMode)
+	message += fmt.Sprintf("<i>Total Expenses:</i> $%.6f\n", settings.TotalExpenses)
+	message += fmt.Sprintf("<i>Chat History:</i> %d messages\n", len(settings.ChatHistory))
+	message += fmt.Sprintf("<i>Custom Models:</i> %d\n", len(settings.CustomModels))
+	message += fmt.Sprintf("<i>Last Updated:</i> %s\n", settings.LastUpdated.Format("2006-01-02 15:04:05"))
 
 	if len(settings.ExpenseHistory) > 0 {
 		lastExpense := settings.ExpenseHistory[len(settings.ExpenseHistory)-1]
-		message += fmt.Sprintf("*Last Activity:* %s\n", lastExpense.Timestamp.Format("2006-01-02 15:04:05"))
+		message += fmt.Sprintf("<i>Last Activity:</i> %s\n", lastExpense.Timestamp.Format("2006-01-02 15:04:05"))
 	}
 
-	message += "\n*Quick Actions:*\n"
+	message += "\n<i>Quick Actions:</i>\n"
 	message += "Use the buttons below for easy navigation."
 
 	keyboard := b.createMainMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "HTML", keyboard)
 }

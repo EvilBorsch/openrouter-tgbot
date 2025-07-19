@@ -14,7 +14,7 @@ A powerful Telegram bot that provides access to various Large Language Models (L
 - **Data Persistence**: All settings and chat history are saved
 - **Docker Support**: Easy deployment and scaling
 - **Auto-Restart**: Graceful handling of crashes and restarts
-- **Smart Formatting**: Markdown support with table conversion and rich text (optimized for all languages)
+- **HTML Formatting**: Robust HTML parsing for perfect text rendering in all languages
 - **Responsive UX**: Continuous typing indicators during API calls
 
 ## 🚀 Quick Start
@@ -388,28 +388,28 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - Or rebuild container: `make docker-build && make deploy`
 
 6. **Formatting issues or broken messages**
-   - The bot uses regular Markdown with automatic text processing
+   - The bot uses HTML formatting with automatic text processing
    - Tables are converted to bullet-point format for better readability
-   - Works better with all languages including Russian, Chinese, etc.
+   - HTML parsing is most reliable for all languages including Russian, Chinese, etc.
    - **Debug tip**: Set `"log_level": "debug"` in config.json to see formatting details
-   - **Fixed**: Switched from MarkdownV2 to regular Markdown to preserve text structure
-   - If issues persist, check that the LLM is using standard Markdown formatting
+   - **Fixed**: Switched to HTML for maximum international compatibility
+   - If issues persist, check that the LLM is using HTML formatting (`<b>bold</b>`, `<i>italic</i>`)
 
 ### Debug Mode
 
 Enable debug logging by setting `"log_level": "debug"` in config.json to see:
-- Markdown formatting processing details
+- HTML formatting processing details
 - Message parsing and sending information  
 - API call debugging information
 
 ### Formatting Status
 
-The bot uses **regular Markdown** for reliable formatting across all languages. This provides:
+The bot uses **HTML formatting** for maximum reliability across all languages. This provides:
 
-- **Better international support**: Works with Russian, Chinese, Arabic, and other languages
-- **Preserved text structure**: Line breaks and paragraphs maintain their formatting
-- **Reliable parsing**: No issues with special characters breaking message structure
-- **Standard formatting**: Uses `**bold**`, `*italic*`, `` `code` ``, etc.
+- **Excellent international support**: Perfect for Russian, Chinese, Arabic, and all languages
+- **Preserved text structure**: Line breaks and paragraphs maintain their exact formatting
+- **Rock-solid parsing**: HTML entities prevent any special character issues
+- **Rich formatting**: Uses `<b>bold</b>`, `<i>italic</i>`, `<code>code</code>`, `<u>underline</u>`, etc.
 
 ### Getting Help
 
@@ -424,7 +424,7 @@ The bot uses **regular Markdown** for reliable formatting across all languages. 
 - **Memory Efficient**: File-based storage with smart caching
 - **Extended Timeout**: 2-minute API timeout for complex requests
 - **Responsive UX**: Continuous typing indicators during processing
-- **Smart Formatting**: Regular Markdown with international language support
+- **HTML Rendering**: Native HTML formatting for crisp, reliable text display
 - **Smart Message Splitting**: Long responses split while preserving formatting
 - **Rate Limiting**: Built-in protection against API limits
 - **Message Queuing**: Handles message bursts gracefully
