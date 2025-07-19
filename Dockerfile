@@ -22,8 +22,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 # Final stage
 FROM alpine:latest
 
-# Install ca-certificates for HTTPS requests
-RUN apk --no-cache add ca-certificates tzdata
+# Install ca-certificates for HTTPS requests and su-exec for user switching
+RUN apk --no-cache add ca-certificates tzdata su-exec
 
 # Create a non-root user
 RUN adduser -D -s /bin/sh appuser
@@ -34,11 +34,15 @@ WORKDIR /app
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
-# Create data directory and set permissions
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Create data directory and set initial permissions
 RUN mkdir -p data && chown -R appuser:appuser /app
 
-# Switch to non-root user
-USER appuser
+# Set entrypoint to handle permissions
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Expose port (not needed for Telegram bot but good practice)
 EXPOSE 8080

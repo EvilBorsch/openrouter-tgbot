@@ -82,6 +82,8 @@ docker-run: ## Run Docker container
 		echo "❌ Config file not found. Run 'make setup' first."; \
 		exit 1; \
 	fi
+	@echo "Preparing data directory..."
+	@mkdir -p data
 	@echo "Starting Docker container..."
 	docker run -d \
 		--name $(BINARY_NAME) \
@@ -147,6 +149,14 @@ logs: ## Show application logs
 	fi
 
 # Utilities
+.PHONY: fix-permissions
+fix-permissions: ## Fix data directory permissions (if having Docker issues)
+	@echo "Fixing data directory permissions..."
+	@mkdir -p data
+	@sudo chown -R $(shell id -u):$(shell id -g) data/
+	@chmod -R 755 data/
+	@echo "✅ Permissions fixed"
+
 .PHONY: config-check
 config-check: ## Validate configuration file
 	@if [ ! -f $(CONFIG_FILE) ]; then \

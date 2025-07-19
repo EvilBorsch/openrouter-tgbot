@@ -9,6 +9,7 @@ services:
       - ./config.json:/app/config.json:ro
       - ./data:/app/data
       - ./logs:/app/logs
+    # Entrypoint handles permissions automatically
     environment:
       - TZ=UTC
     labels:

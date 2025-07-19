@@ -54,4 +54,5 @@ docker-data/
 
 # Temporary files
 tmp/
-temp/ 
+temp/
+test-data/ 

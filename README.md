@@ -231,6 +231,9 @@ For production servers, use Docker with restart policies:
 # Build and deploy
 make docker-build
 
+# Create data directory with proper permissions (important!)
+mkdir -p data
+
 # Run with restart policy
 docker run -d \
   --name telegrambot \
@@ -243,6 +246,8 @@ docker run -d \
 make status
 make logs
 ```
+
+> **Note**: The Docker container includes an entrypoint script that automatically fixes data directory permissions to prevent "permission denied" errors.
 
 ### Systemd Service (Alternative to Docker)
 
@@ -345,6 +350,12 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - Check logs: `make logs`
    - Verify network connectivity
    - Restart: `make docker-stop && make docker-run`
+
+5. **"permission denied" errors in Docker**
+   - The entrypoint automatically fixes data directory permissions
+   - Quick fix: `make fix-permissions && make deploy`
+   - Manual fix: `sudo chown -R $(id -u):$(id -g) data/`
+   - Or rebuild container: `make docker-build && make deploy`
 
 ### Debug Mode
 
