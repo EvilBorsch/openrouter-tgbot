@@ -10,7 +10,7 @@ func (b *Bot) handleSettingsMenu(userID int64) {
 	message += "Choose what you'd like to configure:"
 
 	keyboard := b.createSettingsKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleChatModeMenu shows the chat mode selection menu
@@ -29,7 +29,7 @@ func (b *Bot) handleChatModeMenu(userID int64) {
 	message += "Select your preferred mode:"
 
 	keyboard := b.createChatModeKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleModelSelectionMenu shows the model selection menu
@@ -45,7 +45,7 @@ func (b *Bot) handleModelSelectionMenu(userID int64) {
 	message += "Choose from popular models or view all available models:"
 
 	keyboard := b.createModelSelectionKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleClearWithConfirmation shows confirmation before clearing
@@ -55,7 +55,7 @@ func (b *Bot) handleClearWithConfirmation(userID int64) {
 	message += "This action cannot be undone."
 
 	keyboard := b.createConfirmationKeyboard("clear")
-	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }
 
 // handleAddModelPrompt prompts user to add a custom model
@@ -70,5 +70,5 @@ func (b *Bot) handleAddModelPrompt(userID int64) {
 	message += "*Note:* Make sure the model is available on OpenRouter."
 
 	keyboard := b.createBackToMenuKeyboard()
-	b.sendMessageWithKeyboard(userID, message, "MarkdownV2", keyboard)
+	b.sendMessageWithKeyboard(userID, message, "Markdown", keyboard)
 }

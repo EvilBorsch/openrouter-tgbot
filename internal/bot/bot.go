@@ -212,17 +212,21 @@ func (b *Bot) handleCallbackQuery(callback *tgbotapi.CallbackQuery) {
 
 // sendMessage sends a message to a user
 func (b *Bot) sendMessage(userID int64, text string) error {
-	return b.sendMessageWithKeyboard(userID, text, "MarkdownV2", nil)
+	return b.sendMessageWithKeyboard(userID, text, "Markdown", nil)
 }
 
 // sendMessageWithKeyboard sends a message with an inline keyboard
 func (b *Bot) sendMessageWithKeyboard(userID int64, text, parseMode string, keyboard *tgbotapi.InlineKeyboardMarkup) error {
 	originalText := text
 
-	// Format text for MarkdownV2 if using MarkdownV2 parse mode
+	// Format text based on parse mode
 	if parseMode == "MarkdownV2" {
 		text = b.formatForMarkdownV2(text)
 		log.Debugf("MarkdownV2 formatting applied - Original length: %d, Formatted length: %d", len(originalText), len(text))
+	} else if parseMode == "Markdown" {
+		// For regular Markdown, just do basic table conversion
+		text = b.convertTablesToMarkdown(text)
+		log.Debugf("Markdown formatting applied - Original length: %d, Formatted length: %d", len(originalText), len(text))
 	}
 
 	msg := tgbotapi.NewMessage(userID, text)
@@ -241,17 +245,17 @@ func (b *Bot) sendMessageWithKeyboard(userID int64, text, parseMode string, keyb
 	return err
 }
 
-// sendLLMResponse sends an LLM response with proper MarkdownV2 formatting
+// sendLLMResponse sends an LLM response with proper Markdown formatting
 func (b *Bot) sendLLMResponse(userID int64, response string) error {
-	// Format the LLM response for MarkdownV2
-	formattedResponse := b.formatForMarkdownV2(response)
+	// Format the LLM response for regular Markdown (preserves structure better)
+	formattedResponse := b.convertTablesToMarkdown(response)
 
 	// Split message if too long
 	messages := b.splitMessage(formattedResponse, b.config.MaxMessageLength)
 
 	for _, msgText := range messages {
 		msg := tgbotapi.NewMessage(userID, msgText)
-		msg.ParseMode = "MarkdownV2"
+		msg.ParseMode = "Markdown"
 
 		if _, err := b.api.Send(msg); err != nil {
 			log.Errorf("Failed to send LLM response to user %d: %v", userID, err)
@@ -269,9 +273,11 @@ func (b *Bot) sendLLMResponse(userID int64, response string) error {
 
 // sendMessageWithMode sends a message with specific parse mode
 func (b *Bot) sendMessageWithMode(userID int64, text, parseMode string) error {
-	// Format text for MarkdownV2 if using MarkdownV2 parse mode
+	// Format text based on parse mode
 	if parseMode == "MarkdownV2" {
 		text = b.formatForMarkdownV2(text)
+	} else if parseMode == "Markdown" {
+		text = b.convertTablesToMarkdown(text)
 	}
 
 	// Split message if too long
@@ -361,10 +367,10 @@ func (b *Bot) handleChatMessage(message *tgbotapi.Message) {
 	// Prepare messages for LLM
 	var messages []storage.ChatMessage
 
-	// Add system message for MarkdownV2 formatting
+	// Add system message for Markdown formatting
 	systemMsg := storage.ChatMessage{
 		Role:    "system",
-		Content: b.createSystemMessageForMarkdownV2(),
+		Content: b.createSystemMessageForMarkdown(),
 	}
 	messages = append(messages, systemMsg)
 

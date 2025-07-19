@@ -14,7 +14,7 @@ A powerful Telegram bot that provides access to various Large Language Models (L
 - **Data Persistence**: All settings and chat history are saved
 - **Docker Support**: Easy deployment and scaling
 - **Auto-Restart**: Graceful handling of crashes and restarts
-- **Advanced Formatting**: MarkdownV2 support with proper tables, headers, and rich text
+- **Smart Formatting**: Markdown support with table conversion and rich text (optimized for all languages)
 - **Responsive UX**: Continuous typing indicators during API calls
 
 ## 🚀 Quick Start
@@ -153,7 +153,7 @@ The bot features an **intuitive button-based interface** for easy navigation:
 - **Extended Timeout**: Up to 2 minutes for complex requests
 - **Real-time Feedback**: Continuous indicators so you know it's working
 - **Rich Formatting**: Tables, headers, code blocks rendered beautifully
-- **Smart Text Processing**: Automatic escaping and formatting for Telegram
+- **Multi-language Support**: Optimized formatting for Russian, Chinese, and all languages
 
 ### How to Use the Bot
 
@@ -388,28 +388,28 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - Or rebuild container: `make docker-build && make deploy`
 
 6. **Formatting issues or broken messages**
-   - The bot uses MarkdownV2 with automatic text processing
-   - All reserved characters (`-`, `.`, `!`, `(`, `)`, etc.) are automatically escaped
-   - Tables and headers are converted to Telegram-friendly format
+   - The bot uses regular Markdown with automatic text processing
+   - Tables are converted to bullet-point format for better readability
+   - Works better with all languages including Russian, Chinese, etc.
    - **Debug tip**: Set `"log_level": "debug"` in config.json to see formatting details
-   - **Fixed**: "Character '-' is reserved" errors now resolved
-   - If issues persist, the LLM might be using unsupported formatting
+   - **Fixed**: Switched from MarkdownV2 to regular Markdown to preserve text structure
+   - If issues persist, check that the LLM is using standard Markdown formatting
 
 ### Debug Mode
 
 Enable debug logging by setting `"log_level": "debug"` in config.json to see:
-- MarkdownV2 formatting processing details
+- Markdown formatting processing details
 - Message parsing and sending information  
 - API call debugging information
 
 ### Formatting Status
 
-The bot uses **MarkdownV2** for advanced formatting. If you see literal asterisks (*) or other formatting characters instead of rendered formatting:
+The bot uses **regular Markdown** for reliable formatting across all languages. This provides:
 
-1. Enable debug logging: `"log_level": "debug"` in config.json
-2. Check the logs for formatting processing messages
-3. Ensure the LLM is generating compatible markdown
-4. Report any persistent issues with log details
+- **Better international support**: Works with Russian, Chinese, Arabic, and other languages
+- **Preserved text structure**: Line breaks and paragraphs maintain their formatting
+- **Reliable parsing**: No issues with special characters breaking message structure
+- **Standard formatting**: Uses `**bold**`, `*italic*`, `` `code` ``, etc.
 
 ### Getting Help
 
@@ -424,7 +424,7 @@ The bot uses **MarkdownV2** for advanced formatting. If you see literal asterisk
 - **Memory Efficient**: File-based storage with smart caching
 - **Extended Timeout**: 2-minute API timeout for complex requests
 - **Responsive UX**: Continuous typing indicators during processing
-- **Advanced Formatting**: MarkdownV2 with automatic text processing and escaping
+- **Smart Formatting**: Regular Markdown with international language support
 - **Smart Message Splitting**: Long responses split while preserving formatting
 - **Rate Limiting**: Built-in protection against API limits
 - **Message Queuing**: Handles message bursts gracefully
