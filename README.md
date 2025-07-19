@@ -392,8 +392,8 @@ Check your usage with `/expenses` command to see exact costs and native token co
    - Tables are converted to bullet-point format for better readability
    - HTML parsing is most reliable for all languages including Russian, Chinese, etc.
    - **Debug tip**: Set `"log_level": "debug"` in config.json to see formatting details
-   - **Fixed**: Switched to HTML for maximum international compatibility
-   - If issues persist, check that the LLM is using HTML formatting (`<b>bold</b>`, `<i>italic</i>`)
+   - **Fixed**: Switched to HTML with proper tag parsing (no more literal tags visible)
+   - If issues persist, check debug logs for HTML formatting processing details
 
 ### Debug Mode
 
@@ -408,8 +408,9 @@ The bot uses **HTML formatting** for maximum reliability across all languages. T
 
 - **Excellent international support**: Perfect for Russian, Chinese, Arabic, and all languages
 - **Preserved text structure**: Line breaks and paragraphs maintain their exact formatting
-- **Rock-solid parsing**: HTML entities prevent any special character issues
+- **Rock-solid parsing**: HTML tags render correctly without escaping issues
 - **Rich formatting**: Uses `<b>bold</b>`, `<i>italic</i>`, `<code>code</code>`, `<u>underline</u>`, etc.
+- **Fixed HTML rendering**: HTML tags now display as formatting, not literal text
 
 ### Getting Help
 

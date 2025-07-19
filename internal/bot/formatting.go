@@ -200,8 +200,8 @@ Keep responses clear and mobile-friendly. Preserve line breaks and structure.`
 
 // convertTablesToHTML converts tables for HTML formatting (most reliable for international text)
 func (b *Bot) convertTablesToHTML(text string) string {
-	// First escape HTML entities to prevent parsing issues
-	text = b.escapeHTMLEntities(text)
+	// Don't escape HTML entities - we want HTML tags to be parsed as formatting
+	// The LLM is instructed to generate proper HTML, so we trust its output
 
 	lines := strings.Split(text, "\n")
 	var result []string
@@ -249,40 +249,51 @@ func (b *Bot) convertTablesToHTML(text string) string {
 	return strings.Join(result, "\n")
 }
 
-// escapeHTMLEntities escapes HTML entities to prevent parsing issues
+// escapeHTMLEntities escapes HTML entities while preserving formatting tags
 func (b *Bot) escapeHTMLEntities(text string) string {
-	// Only escape the entities that would break HTML parsing
-	// Be conservative to preserve text structure
-	text = strings.ReplaceAll(text, "&", "&amp;") // Must be first
-	text = strings.ReplaceAll(text, "<", "&lt;")
-	text = strings.ReplaceAll(text, ">", "&gt;")
+	// Only escape & characters that aren't already escaped HTML entities
+	// This prevents double-escaping while fixing unescaped & characters
+	text = strings.ReplaceAll(text, "&amp;", "TEMP_AMP_PLACEHOLDER")
+	text = strings.ReplaceAll(text, "&lt;", "TEMP_LT_PLACEHOLDER")
+	text = strings.ReplaceAll(text, "&gt;", "TEMP_GT_PLACEHOLDER")
+	text = strings.ReplaceAll(text, "&", "&amp;")
+	text = strings.ReplaceAll(text, "TEMP_AMP_PLACEHOLDER", "&amp;")
+	text = strings.ReplaceAll(text, "TEMP_LT_PLACEHOLDER", "&lt;")
+	text = strings.ReplaceAll(text, "TEMP_GT_PLACEHOLDER", "&gt;")
 
+	// Don't escape < and > - we want HTML formatting tags to work
 	return text
 }
 
 // createSystemMessageForHTML creates an appropriate system message for HTML formatting
 func (b *Bot) createSystemMessageForHTML() string {
-	return `You are a helpful assistant. Format your responses for Telegram using HTML formatting:
+	return `You are a helpful assistant. Format your responses for Telegram using clean HTML formatting:
 
-FORMATTING:
+FORMATTING RULES:
 - Use <b>bold text</b> for important points and headers  
 - Use <i>italic text</i> for emphasis
 - Use <code>inline code</code> for commands and technical terms
 - Use <pre>code blocks</pre> for longer code
 - Use <u>underlined text</u> for special emphasis (optional)
 
-STRUCTURE:
+STRUCTURE GUIDELINES:
 - Use bullet points (•) for lists
 - Keep paragraphs short and readable
 - Use blank lines to separate sections
 - Preserve line breaks for readability
 
-FOR TABLES: Use simple bullet-point format instead of markdown tables:
+FOR TABLES: Use simple bullet-point format:
 • <b>Column 1</b> | <b>Column 2</b> | <b>Column 3</b>  
 • Data 1 | Data 2 | Data 3
 • Data A | Data B | Data C
 
-Keep responses clear and mobile-friendly. HTML formatting works great with all languages including Russian, Chinese, Arabic, etc.`
+IMPORTANT: 
+- Only use HTML tags for formatting: <b>, <i>, <code>, <pre>, <u>
+- Do NOT use < or > characters for anything other than HTML tags
+- Avoid special characters that might conflict with HTML parsing
+- Keep responses clear and mobile-friendly
+
+This HTML formatting works perfectly with all languages including Russian, Chinese, Arabic, etc.`
 }
 
 // createSystemMessageForMarkdownV2 creates an appropriate system message for MarkdownV2 formatting
