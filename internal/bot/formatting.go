@@ -8,17 +8,36 @@ import (
 func (b *Bot) formatForMarkdownV2(text string) string {
 	// TEMPORARY MINIMAL PROCESSING - Testing basic MarkdownV2
 	// Just do basic table conversion and minimal escaping
-	
+
 	// Convert tables first
 	text = b.convertTablesToMarkdownV2(text)
-	
-	// Convert headers to bold formatting  
+
+	// Convert headers to bold formatting
 	text = b.convertHeadersToMarkdownV2(text)
-	
-	// Only escape the most essential characters that commonly break parsing
-	text = strings.ReplaceAll(text, ".", "\\.")
-	text = strings.ReplaceAll(text, "!", "\\!")
-	
+
+	// Escape MarkdownV2 reserved characters (but preserve intended formatting)
+	// Note: We preserve *, _, ~, ` for actual formatting
+	reservedChars := map[string]string{
+		".": "\\.",
+		"!": "\\!",
+		"-": "\\-",
+		"(": "\\(",
+		")": "\\)",
+		"[": "\\[",
+		"]": "\\]",
+		"{": "\\{",
+		"}": "\\}",
+		"|": "\\|",
+		"=": "\\=",
+		"+": "\\+",
+		">": "\\>",
+		"#": "\\#",
+	}
+
+	for char, escaped := range reservedChars {
+		text = strings.ReplaceAll(text, char, escaped)
+	}
+
 	return text
 }
 
@@ -26,10 +45,10 @@ func (b *Bot) formatForMarkdownV2(text string) string {
 func (b *Bot) convertTablesToMarkdownV2(text string) string {
 	lines := strings.Split(text, "\n")
 	var result []string
-	
+
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		
+
 		// Simple table detection: starts and ends with |
 		if strings.HasPrefix(trimmed, "|") && strings.HasSuffix(trimmed, "|") && len(trimmed) > 2 {
 			// Check if this might be a header (next line has dashes)
@@ -40,11 +59,11 @@ func (b *Bot) convertTablesToMarkdownV2(text string) string {
 					isHeader = true
 				}
 			}
-			
+
 			// Convert to bullet point format
 			cells := strings.Split(strings.Trim(trimmed, "|"), "|")
 			var cleanCells []string
-			
+
 			for _, cell := range cells {
 				cell = strings.TrimSpace(cell)
 				if cell != "" {
@@ -55,9 +74,9 @@ func (b *Bot) convertTablesToMarkdownV2(text string) string {
 					}
 				}
 			}
-			
+
 			if len(cleanCells) > 0 {
-				result = append(result, "• "+strings.Join(cleanCells, " | "))
+				result = append(result, "• "+strings.Join(cleanCells, " — "))
 			}
 		} else if strings.Contains(trimmed, "|") && strings.Contains(trimmed, "-") && len(strings.TrimSpace(trimmed)) > 0 {
 			// Skip separator lines
@@ -66,7 +85,7 @@ func (b *Bot) convertTablesToMarkdownV2(text string) string {
 			result = append(result, line)
 		}
 	}
-	
+
 	return strings.Join(result, "\n")
 }
 
@@ -128,9 +147,9 @@ STRUCTURE:
 - Use blank lines to separate sections
 
 FOR TABLES: Use simple bullet-point format instead of markdown tables:
-• *Column 1* | *Column 2* | *Column 3*  
-• Data 1 | Data 2 | Data 3
-• Data A | Data B | Data C
+• *Column 1* — *Column 2* — *Column 3*  
+• Data 1 — Data 2 — Data 3
+• Data A — Data B — Data C
 
 Keep responses clear and mobile-friendly. Avoid complex formatting.`
 }

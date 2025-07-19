@@ -389,9 +389,10 @@ Check your usage with `/expenses` command to see exact costs and native token co
 
 6. **Formatting issues or broken messages**
    - The bot uses MarkdownV2 with automatic text processing
-   - Special characters are automatically escaped
+   - All reserved characters (`-`, `.`, `!`, `(`, `)`, etc.) are automatically escaped
    - Tables and headers are converted to Telegram-friendly format
    - **Debug tip**: Set `"log_level": "debug"` in config.json to see formatting details
+   - **Fixed**: "Character '-' is reserved" errors now resolved
    - If issues persist, the LLM might be using unsupported formatting
 
 ### Debug Mode
